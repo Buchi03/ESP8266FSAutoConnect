@@ -29,7 +29,7 @@ private:
     bool validateCreds(String ssid, String pass);
     bool getWiFiCreds(uint8_t * data, String * ssid, String * pass);
     void handleCredsBody(AsyncWebServerRequest * req, uint8_t *data, size_t len, size_t index, size_t total);
-    void startStartAPServer(void);
+    void startAPServer(void);
     void displayWC(void);
 
     void connectToAP(void);

@@ -106,10 +106,11 @@ void ESP8266FSAutoConnect::displayWC(void){
     Serial.printf("ap_ssid : %s\nap_pass : %s\nsta_ssid : %s\nsta_pass : %s\n", wc.ap_ssid.c_str(), wc.ap_pass.c_str(), wc.sta_ssid.c_str(), wc.sta_pass.c_str());
 }
 
-void ESP8266FSAutoConnect::startStartAPServer(void){
+void ESP8266FSAutoConnect::startAPServer(void){
     if(this->_main_server){
         this->_main_server->end();
     }
+    WiFi.disconnect();
     WiFi.mode(WIFI_AP);
     WiFi.softAP(wc.ap_ssid, wc.ap_pass);
     if(_ssta_server){
@@ -147,7 +148,7 @@ bool ESP8266FSAutoConnect::autoConnect(AsyncWebServer *server)
             return;
         }
         Serial.println("Starting AP Server");
-        this->startStartAPServer();
+        this->startAPServer();
 
     });
 
@@ -205,6 +206,7 @@ bool ESP8266FSAutoConnect::autoConnect(AsyncWebServer *server)
                 
                 
                 this->_connect_sta = true;
+                this->_sta_connected = false;
                 return;
             }
             req->send(400, "text/plain", "invalid parameter");
@@ -214,7 +216,7 @@ bool ESP8266FSAutoConnect::autoConnect(AsyncWebServer *server)
     {
         Serial.printf("Starting AP Server on port %d\n", _port);
         
-        startStartAPServer();
+        startAPServer();
         
         return false;
     }
