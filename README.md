@@ -18,4 +18,4 @@ access point, in case all 3 attemps are unsuccessful, the ESP8266 launches a sof
 
 ### Detailed Block Diagram
 
-<img src="https://raw.githubusercontent.com/Prateek7805/ESP8266FSAutoConnect/master/Block%20Diagram.png"/>
+<img src="https://raw.githubusercontent.com/Prateek7805/ESP8266FSAutoConnect/master/Block%20Diagram.png" width = "75%" height="75%"/>
