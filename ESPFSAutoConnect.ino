@@ -19,5 +19,5 @@ void setup(){
 }
 
 void loop(){
-  
+  EFAC.run();
 }

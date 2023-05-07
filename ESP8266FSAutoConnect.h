@@ -12,6 +12,9 @@ private:
     AsyncWebServer *_ssta_server = NULL;
     AsyncWebServer * _main_server = NULL;
     uint16_t _port = 80;
+    bool _connect_sta = false;
+    bool _sta_connected = false;
+    unsigned long _timer = 0;
     struct _creds
     {
         String ap_ssid = "ESP8266FSAutoConnect"; // defaults in case any issue
@@ -33,6 +36,7 @@ private:
 public:
     ESP8266FSAutoConnect(uint16_t port);
     bool autoConnect(AsyncWebServer * server);
+    void run(void);
 };
 
 #endif _ESP8266FSAUTOCONNECT_
