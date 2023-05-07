@@ -12,7 +12,7 @@ bool ESP8266FSAutoConnect::initCreds(void)
         Serial.println("Resorting to default AP creds");
         return false;
     }
-    //LittleFS.format(); //for testing only
+    LittleFS.format(); //for testing only
     if (!LittleFS.exists(CREDS_PATH))
     {
         Serial.printf("No file found at %s\n", CREDS_PATH);
@@ -120,9 +120,6 @@ void ESP8266FSAutoConnect::startStartAPServer(void){
 
 void ESP8266FSAutoConnect::connectToAP(void){
     delay(100);
-    if(_ssta_server){
-        _ssta_server->end();
-    }
     WiFi.disconnect();
     WiFi.mode(WIFI_STA);
     WiFi.begin(wc.sta_ssid, wc.sta_pass);
@@ -130,20 +127,17 @@ void ESP8266FSAutoConnect::connectToAP(void){
 
 bool ESP8266FSAutoConnect::autoConnect(AsyncWebServer *server)
 {
-    if(server){
-        _main_server = server;
-    }
-    staGotIPHandler = WiFi.onStationModeGotIP([this](const WiFiEventStationModeGotIP& event){
+    
+    _main_server = server;
+    
+    staGotIPHandler = WiFi.onStationModeGotIP([&](const WiFiEventStationModeGotIP& event){
         Serial.println("Connected to Wi-Fi sucessfully.");
         Serial.print("IP address: ");
         Serial.println(WiFi.localIP());
-        
-        if(this->_main_server){
-            this->_main_server->begin();
-        }
+        this->_conn_count = 0;
     });
     staDisconnectedHandler = WiFi.onStationModeDisconnected([this](const WiFiEventStationModeDisconnected& event){
-        if(this->_conn_count < 3){
+        if(this->_conn_count < 5){
             Serial.printf("Disconnected from Wi-Fi Attempting reconnect : %d\n", this->_conn_count);
             this->connectToAP();
             this->_conn_count++;
@@ -205,6 +199,15 @@ bool ESP8266FSAutoConnect::autoConnect(AsyncWebServer *server)
                     return;
                 }
                 req->send(200, "text/plain", "STA updated attemping to connect to AP...");
+                
+                if(this->_ssta_server){
+                    Serial.println("AP Server END");
+                    this->_ssta_server->end();
+                }
+                if(this->_main_server){
+                    Serial.println("starting main server");
+                    this->_main_server->begin();
+                }
                 this->connectToAP();
                 return;
             }
