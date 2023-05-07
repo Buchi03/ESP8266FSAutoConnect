@@ -16,3 +16,6 @@ access point, in case all 3 attemps are unsuccessful, the ESP8266 launches a sof
 * [ESPAsyncWebServer](https://github.com/me-no-dev/ESPAsyncWebServer)
 * [ESPAsyncTCP](https://github.com/me-no-dev/ESPAsyncTCP)
 
+### Detailed Block Diagram
+
+<img src="https://raw.githubusercontent.com/Prateek7805/ESP8266FSAutoConnect/master/Block%20Diagram.png"/>
