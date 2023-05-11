@@ -107,18 +107,15 @@ void ESP8266FSAutoConnect::displayWC(void){
 }
 
 void ESP8266FSAutoConnect::startAPServer(void){
-    if(this->_main_server){
-        this->_main_server->end();
-    }
+    Serial.println("Starting AP");
     WiFi.disconnect();
     WiFi.mode(WIFI_AP);
     WiFi.softAP(wc.ap_ssid, wc.ap_pass);
-    if(_ssta_server){
-        _ssta_server->begin();
-    }
+    _connect_AP = true;
 }
 
 void ESP8266FSAutoConnect::connectToAP(void){
+    WiFi.softAPdisconnect();
     WiFi.disconnect();
     WiFi.mode(WIFI_STA);
     WiFi.begin(wc.sta_ssid, wc.sta_pass);
@@ -133,9 +130,17 @@ bool ESP8266FSAutoConnect::autoConnect(AsyncWebServer *server)
         Serial.println("Connected to Wi-Fi sucessfully.");
         Serial.print("IP address: ");
         Serial.println(WiFi.localIP());
-        if(_main_server){
-            Serial.println("starting main server");
-            _main_server->begin();
+        if (_ap_server_running){
+            _ssta_server->end();
+            _ap_server_running = false;
+            Serial.println("AP Server END");
+        }
+        if(this->_main_server){
+            if(!this->_main_server_running){
+                this->_main_server->begin();
+                this->_main_server_running = true;
+                Serial.println("starting main server");
+            }
         }
         this->_conn_count = 0;
         this->_sta_connected = true;
@@ -147,14 +152,20 @@ bool ESP8266FSAutoConnect::autoConnect(AsyncWebServer *server)
             this->_conn_count++;
             return;
         }
-        Serial.println("Starting AP Server");
+        
         this->startAPServer();
 
     });
 
         _ssta_server = new AsyncWebServer(_port);
         _ssta_server->on("/", HTTP_GET, [](AsyncWebServerRequest *req){ 
-            req->send(200, "text/plain", "ok"); 
+            req->send_P(200, "text/html", _index); 
+        });
+        _ssta_server->on("/styles.css", HTTP_GET, [](AsyncWebServerRequest *req){
+            req->send_P(200, "text/css", _styles);
+        });
+        _ssta_server->on("/script.js", HTTP_GET, [](AsyncWebServerRequest *req){
+            req->send_P(200, "application/javascript", _script);
         });
         _ssta_server->onRequestBody([this](AsyncWebServerRequest *req, uint8_t *data, size_t len, size_t index, size_t total){
              if (len > 150)
@@ -185,7 +196,7 @@ bool ESP8266FSAutoConnect::autoConnect(AsyncWebServer *server)
                 req->send(400, "text/plain", "bad ssid/password length");
                 return;
             }
-            if(type == "ap"){
+            if(type == "AP"){
                 this->wc.ap_ssid = ssid;
                 this->wc.ap_pass = pass;
                 if(!this->saveCreds()){
@@ -195,7 +206,7 @@ bool ESP8266FSAutoConnect::autoConnect(AsyncWebServer *server)
                 req->send(200, "text/plain", "AP updated, in effect after device restart");
                 return;
             }
-            if(type == "sta"){
+            if(type == "STA"){
                 this->wc.sta_ssid = ssid;
                 this->wc.sta_pass = pass;
                 if(!this->saveCreds()){
@@ -204,7 +215,7 @@ bool ESP8266FSAutoConnect::autoConnect(AsyncWebServer *server)
                 }
                 req->send(200, "text/plain", "STA updated attemping to connect to AP...");
                 
-                
+                this->_conn_count = 0;
                 this->_connect_sta = true;
                 this->_sta_connected = false;
                 return;
@@ -214,7 +225,7 @@ bool ESP8266FSAutoConnect::autoConnect(AsyncWebServer *server)
 
     if (!initCreds())
     {
-        Serial.printf("Starting AP Server on port %d\n", _port);
+        
         
         startAPServer();
         
@@ -228,13 +239,27 @@ bool ESP8266FSAutoConnect::autoConnect(AsyncWebServer *server)
 void ESP8266FSAutoConnect::run(){
     if(millis() - _timer > 100){
         if(_connect_sta == true && _sta_connected == false){
-                if(_ssta_server){
-                    Serial.println("AP Server END");
-                    _ssta_server->end();
-                }
-                
                 _sta_connected = true;
                 connectToAP();
+        }
+        if (_connect_AP)
+        {
+                _connect_AP = false;
+                if (_main_server)
+                {
+                    if (_main_server_running)
+                    {
+                        _main_server->end();
+                        _main_server_running = false;
+                        Serial.println("Main server END");
+                    }
+                }
+                if (!_ap_server_running)
+                {
+                    _ssta_server->begin();
+                    _ap_server_running = true;
+                    Serial.printf("Started AP Server on port %d\n", _port);
+                }
         }
         _timer = millis();
     }

@@ -4,6 +4,10 @@
 #include <ESPAsyncWebServer.h> // Include the ESPAsyncWebServer library
 #include <ESPAsyncTCP.h>       // Include the ESPAsyncTCP library
 #include "LittleFS.h"
+#include "index.h"
+#include "styles.h"
+#include "script.h"
+
 
 #define CREDS_PATH "/wificreds.bin"
 
@@ -14,6 +18,7 @@ private:
     uint16_t _port = 80;
     bool _connect_sta = false;
     bool _sta_connected = false;
+    bool _connect_AP = false;
     unsigned long _timer = 0;
     struct _creds
     {
@@ -23,6 +28,8 @@ private:
         String sta_pass = "";
     } wc;
     uint8_t _conn_count = 0;
+    bool _ap_server_running = false;
+    bool _main_server_running = false;
     WiFiEventHandler staDisconnectedHandler, staGotIPHandler;
     bool initCreds(void);
     bool saveCreds(void);
