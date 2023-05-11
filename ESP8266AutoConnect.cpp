@@ -109,6 +109,8 @@ void ESP8266FSAutoConnect::displayWC(void){
 void ESP8266FSAutoConnect::startAPServer(void){
     Serial.println("Starting AP");
     WiFi.disconnect();
+    WiFi.mode(WIFI_AP_STA);
+    WiFi.disconnect();
     WiFi.mode(WIFI_AP);
     WiFi.softAP(wc.ap_ssid, wc.ap_pass);
     _connect_AP = true;
@@ -117,6 +119,7 @@ void ESP8266FSAutoConnect::startAPServer(void){
 void ESP8266FSAutoConnect::connectToAP(void){
     WiFi.softAPdisconnect();
     WiFi.disconnect();
+    
     WiFi.mode(WIFI_STA);
     WiFi.begin(wc.sta_ssid, wc.sta_pass);
 }
