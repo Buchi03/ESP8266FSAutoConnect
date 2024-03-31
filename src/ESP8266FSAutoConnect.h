@@ -7,7 +7,7 @@
 #include "index.h"
 #include "styles.h"
 #include "script.h"
-
+#include "WiFiSecrets.h"
 
 #define CREDS_PATH "/wificreds.bin"
 
@@ -24,8 +24,8 @@ private:
     {
         String ap_ssid = "ESP8266FSAutoConnect"; // defaults in case any issue
         String ap_pass = "12345678";             // defaults in case any issue
-        String sta_ssid = "";
-        String sta_pass = "";
+        String sta_ssid = STASSID;
+        String sta_pass = STAPASS;
     } wc;
     uint8_t _conn_count = 0;
     bool _ap_server_running = false;

@@ -1,6 +1,5 @@
 #include "ESP8266FSAutoConnect.h"
 #include <ESPAsyncWebServer.h>
-#include "WiFiSecrets.h"
 ESP8266FSAutoConnect EFAC(80);
 AsyncWebServer server(80);
 void setup(){
