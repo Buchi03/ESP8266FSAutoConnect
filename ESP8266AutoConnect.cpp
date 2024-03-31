@@ -12,7 +12,7 @@ bool ESP8266FSAutoConnect::initCreds(void)
         Serial.println("Resorting to default AP creds");
         return false;
     }
-    LittleFS.format(); //for testing only
+    //LittleFS.format(); //for testing only
     if (!LittleFS.exists(CREDS_PATH))
     {
         Serial.printf("No file found at %s\n", CREDS_PATH);
