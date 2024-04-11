@@ -24,8 +24,8 @@ private:
     {
         String ap_ssid = "ESP8266FSAutoConnect"; // defaults in case any issue
         String ap_pass = "12345678";             // defaults in case any issue
-        String sta_ssid = STASSID;
-        String sta_pass = STAPASS;
+        String sta_ssid = STASSID;               // ssid from WiFiSecrets.h file
+        String sta_pass = STAPASS;               // passphrase from WiFiSecrets.h file
     } wc;
     uint8_t _conn_count = 0;
     bool _ap_server_running = false;

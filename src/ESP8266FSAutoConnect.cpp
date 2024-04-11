@@ -130,7 +130,7 @@ bool ESP8266FSAutoConnect::autoConnect(AsyncWebServer *server)
     _main_server = server;
     
     staGotIPHandler = WiFi.onStationModeGotIP([&](const WiFiEventStationModeGotIP& event){
-        Serial.println("Connected to Wi-Fi sucessfully.");
+        Serial.println("Connected to Wi-Fi successfully.");
         Serial.print("IP address: ");
         Serial.println(WiFi.localIP());
         if (_ap_server_running){
@@ -216,7 +216,7 @@ bool ESP8266FSAutoConnect::autoConnect(AsyncWebServer *server)
                     req->send(500, "text/plain", "Failed to save STA credentials");
                     return;
                 }
-                req->send(200, "text/plain", "STA updated attemping to connect to AP...");
+                req->send(200, "text/plain", "STA updated attempting to connect to AP...");
                 
                 this->_conn_count = 0;
                 this->_connect_sta = true;
@@ -228,13 +228,11 @@ bool ESP8266FSAutoConnect::autoConnect(AsyncWebServer *server)
 
     if (!initCreds())
     {
-        
-        
         startAPServer();
         
         return false;
     }
-    Serial.printf("Connecting to access point : %s\n", wc.sta_ssid);
+    Serial.printf("Connecting to access point: %s\n", wc.sta_ssid.c_str());
     connectToAP();
     return true;
 }
