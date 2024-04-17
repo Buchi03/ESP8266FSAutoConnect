@@ -11,6 +11,13 @@
 
 #define CREDS_PATH "/wificreds.bin"
 
+struct _creds {
+    String ap_ssid;
+    String ap_pass;
+    String sta_ssid;
+    String sta_pass;
+};
+
 class ESP8266FSAutoConnect {
 private:
     AsyncWebServer *_ssta_server = NULL;
@@ -20,13 +27,8 @@ private:
     bool _sta_connected = false;
     bool _connect_AP = false;
     unsigned long _timer = 0;
-    struct _creds
-    {
-        String ap_ssid = "ESP8266FSAutoConnect"; // defaults in case any issue
-        String ap_pass = "12345678";             // defaults in case any issue
-        String sta_ssid = STASSID;               // ssid from WiFiSecrets.h file
-        String sta_pass = STAPASS;               // passphrase from WiFiSecrets.h file
-    } wc;
+    _creds wc;
+    _creds wc_default {APSSID, APPASS, STASSID, STAPASS}; // default values from WiFiSecrets.h file
     uint8_t _conn_count = 0;
     bool _ap_server_running = false;
     bool _main_server_running = false;

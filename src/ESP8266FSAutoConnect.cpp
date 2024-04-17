@@ -6,6 +6,10 @@ ESP8266FSAutoConnect::ESP8266FSAutoConnect(uint16_t port)
 }
 bool ESP8266FSAutoConnect::initCreds(void)
 {
+    wc.sta_ssid = wc_default.sta_ssid;
+    wc.sta_pass = wc_default.sta_pass;
+    wc.ap_ssid = wc_default.ap_ssid;
+    wc.ap_pass = wc_default.ap_pass;
     if (!LittleFS.begin())
     {
         Serial.println("LittleFS initialization unsuccessful");
@@ -17,7 +21,7 @@ bool ESP8266FSAutoConnect::initCreds(void)
     {
         Serial.printf("No file found at %s\n", CREDS_PATH);
         Serial.println("Resorting to default AP credentials");
-        return false;
+        saveCreds();
     }
 
     File credsFile = LittleFS.open(CREDS_PATH, "r");
@@ -35,6 +39,10 @@ bool ESP8266FSAutoConnect::initCreds(void)
 
     if(!validateCreds(wc.sta_ssid, wc.sta_pass)){
         Serial.println("bad STA credentials, Resorting to AP creds");
+        wc.sta_ssid = wc_default.sta_ssid;
+        wc.sta_pass = wc_default.sta_pass;
+        wc.ap_ssid = wc_default.ap_ssid;
+        wc.ap_pass = wc_default.ap_pass;
         return false;
     }
     return true;
