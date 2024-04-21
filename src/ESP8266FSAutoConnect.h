@@ -11,6 +11,17 @@
 
 #define CREDS_PATH "/wificreds.bin"
 
+
+#ifdef DEBUG
+#define _PP(...) if(_libSerial!=NULL)_libSerial->print(__VA_ARGS__)
+#define _PL(...) if(_libSerial!=NULL)_libSerial->println(__VA_ARGS__)
+#define _PF(...) if(_libSerial!=NULL)_libSerial->printf(__VA_ARGS__)
+#else
+#define _PP(...)
+#define _PL(...)
+#define _PF(...)
+#endif
+
 struct _creds {
     String ap_ssid;
     String ap_pass;
@@ -20,8 +31,10 @@ struct _creds {
 
 class ESP8266FSAutoConnect {
 private:
+    // ------ Private Variables ------
     AsyncWebServer *_ssta_server = NULL;
     AsyncWebServer * _main_server = NULL;
+    Stream *_libSerial = NULL;
     uint16_t _port = 80;
     bool _connect_sta = false;
     bool _sta_connected = false;
@@ -33,6 +46,8 @@ private:
     bool _ap_server_running = false;
     bool _main_server_running = false;
     WiFiEventHandler staDisconnectedHandler, staGotIPHandler;
+
+    // ------ Private Functions ------
     bool initCreds(void);
     bool saveCreds(void);
     bool validateCreds(String ssid, String pass);
@@ -40,12 +55,12 @@ private:
     void handleCredsBody(AsyncWebServerRequest * req, uint8_t *data, size_t len, size_t index, size_t total);
     void startAPServer(void);
     void displayWC(void);
-
     void connectToAP(void);
 public:
     ESP8266FSAutoConnect(uint16_t port);
     bool autoConnect(AsyncWebServer * server);
     void run(void);
+    void setSerial(Stream *serialReference);
 };
 
 #endif //_ESP8266FSAUTOCONNECT_

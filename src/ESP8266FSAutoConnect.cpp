@@ -12,23 +12,23 @@ bool ESP8266FSAutoConnect::initCreds(void)
     wc.ap_pass = wc_default.ap_pass;
     if (!LittleFS.begin())
     {
-        Serial.println("LittleFS initialization unsuccessful");
-        Serial.println("Resorting to default AP creds");
+        _PL("LittleFS initialization unsuccessful");
+        _PL("Resorting to default AP creds");
         return false;
     }
     //LittleFS.format(); //for testing only
     if (!LittleFS.exists(CREDS_PATH))
     {
-        Serial.printf("No file found at %s\n", CREDS_PATH);
-        Serial.println("Resorting to default AP credentials");
+        _PF("No file found at %s\n", CREDS_PATH);
+        _PL("Resorting to default AP credentials");
         saveCreds();
     }
 
     File credsFile = LittleFS.open(CREDS_PATH, "r");
     if (!credsFile)
     {
-        Serial.printf("Failed to read credentials file at %s\n", CREDS_PATH);
-        Serial.println("Resorting to default AP creds");
+        _PF("Failed to read credentials file at %s\n", CREDS_PATH);
+        _PL("Resorting to default AP creds");
         return false;
     }
     wc.ap_ssid = credsFile.readStringUntil('\n');
@@ -38,7 +38,7 @@ bool ESP8266FSAutoConnect::initCreds(void)
     credsFile.close();
 
     if(!validateCreds(wc.sta_ssid, wc.sta_pass)){
-        Serial.println("bad STA credentials, Resorting to AP creds");
+        _PL("bad STA credentials, Resorting to AP creds");
         wc.sta_ssid = wc_default.sta_ssid;
         wc.sta_pass = wc_default.sta_pass;
         wc.ap_ssid = wc_default.ap_ssid;
@@ -51,13 +51,13 @@ bool ESP8266FSAutoConnect::initCreds(void)
 bool ESP8266FSAutoConnect::saveCreds(void){
     if (!LittleFS.begin())
     {
-        Serial.println("LittleFS check unsuccessful");
-        Serial.println("Try restarting the device");
+        _PL("LittleFS check unsuccessful");
+        _PL("Try restarting the device");
         return false;
     }
     File credsFile = LittleFS.open(CREDS_PATH, "w");
     if(!credsFile){
-        Serial.printf("Failed to create file at %s\n", CREDS_PATH);
+        _PF("Failed to create file at %s\n", CREDS_PATH);
         return false;
     }
     credsFile.printf("%s\n%s\n%s\n%s\n",wc.ap_ssid.c_str(), wc.ap_pass.c_str(), wc.sta_ssid.c_str(), wc.sta_pass.c_str());
@@ -111,11 +111,11 @@ bool ESP8266FSAutoConnect::validateCreds(String ssid, String pass)
 }
 
 void ESP8266FSAutoConnect::displayWC(void){
-    Serial.printf("ap_ssid : %s\nap_pass : %s\nsta_ssid : %s\nsta_pass : %s\n", wc.ap_ssid.c_str(), wc.ap_pass.c_str(), wc.sta_ssid.c_str(), wc.sta_pass.c_str());
+    _PF("ap_ssid : %s\nap_pass : %s\nsta_ssid : %s\nsta_pass : %s\n", wc.ap_ssid.c_str(), wc.ap_pass.c_str(), wc.sta_ssid.c_str(), wc.sta_pass.c_str());
 }
 
 void ESP8266FSAutoConnect::startAPServer(void){
-    Serial.println("Starting AP");
+    _PL("Starting AP");
     WiFi.disconnect();
     WiFi.mode(WIFI_AP_STA);
     WiFi.disconnect();
@@ -138,19 +138,19 @@ bool ESP8266FSAutoConnect::autoConnect(AsyncWebServer *server)
     _main_server = server;
     
     staGotIPHandler = WiFi.onStationModeGotIP([&](const WiFiEventStationModeGotIP& event){
-        Serial.println("Connected to Wi-Fi successfully.");
-        Serial.print("IP address: ");
-        Serial.println(WiFi.localIP());
+        _PL("Connected to Wi-Fi successfully.");
+        _PP("IP address: ");
+        _PL(WiFi.localIP());
         if (_ap_server_running){
             _ssta_server->end();
             _ap_server_running = false;
-            Serial.println("AP Server END");
+            _PL("AP Server END");
         }
         if(this->_main_server){
             if(!this->_main_server_running){
                 this->_main_server->begin();
                 this->_main_server_running = true;
-                Serial.println("starting main server");
+                _PL("starting main server");
             }
         }
         this->_conn_count = 0;
@@ -158,7 +158,7 @@ bool ESP8266FSAutoConnect::autoConnect(AsyncWebServer *server)
     });
     staDisconnectedHandler = WiFi.onStationModeDisconnected([this](const WiFiEventStationModeDisconnected& event){
         if(this->_conn_count < 5){
-            Serial.printf("Disconnected from Wi-Fi Attempting reconnect : %d\n", this->_conn_count);
+            _PF("Disconnected from Wi-Fi Attempting reconnect : %d\n", this->_conn_count);
             this->connectToAP();
             this->_conn_count++;
             return;
@@ -240,7 +240,7 @@ bool ESP8266FSAutoConnect::autoConnect(AsyncWebServer *server)
         
         return false;
     }
-    Serial.printf("Connecting to access point: %s\n", wc.sta_ssid.c_str());
+    _PF("Connecting to access point: %s\n", wc.sta_ssid.c_str());
     connectToAP();
     return true;
 }
@@ -260,17 +260,23 @@ void ESP8266FSAutoConnect::run(){
                     {
                         _main_server->end();
                         _main_server_running = false;
-                        Serial.println("Main server END");
+                        _PL("Main server END");
                     }
                 }
                 if (!_ap_server_running)
                 {
                     _ssta_server->begin();
                     _ap_server_running = true;
-                    Serial.printf("Started AP Server on port %d\n", _port);
+                    _PF("Started AP Server on port %d\n", _port);
                 }
         }
         _timer = millis();
     }
     
+}
+
+// Method to set or change the serial port used for debugging
+void ESP8266FSAutoConnect::setSerial(Stream *serialReference)
+{
+    _libSerial = serialReference;
 }
