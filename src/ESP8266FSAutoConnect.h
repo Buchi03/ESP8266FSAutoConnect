@@ -13,9 +13,9 @@
 
 
 #ifdef DEBUG
-#define _PP(...) if(_libSerial!=NULL)_libSerial->print(__VA_ARGS__)
-#define _PL(...) if(_libSerial!=NULL)_libSerial->println(__VA_ARGS__)
-#define _PF(...) if(_libSerial!=NULL)_libSerial->printf(__VA_ARGS__)
+#define _PP(...) USE_SERIAL.print(__VA_ARGS__)
+#define _PL(...) USE_SERIAL.println(__VA_ARGS__)
+#define _PF(...) USE_SERIAL.printf(__VA_ARGS__)
 #else
 #define _PP(...)
 #define _PL(...)
