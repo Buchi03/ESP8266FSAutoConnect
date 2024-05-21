@@ -1,26 +1,8 @@
 #ifndef _ESP8266FSAUTOCONNECT_
 #define _ESP8266FSAUTOCONNECT_
-#include <ESP8266WiFi.h>       // Include the ESP8266WiFi library
+
 #include <ESPAsyncWebServer.h> // Include the ESPAsyncWebServer library
-#include <ESPAsyncTCP.h>       // Include the ESPAsyncTCP library
-#include "LittleFS.h"
-#include "index.h"
-#include "styles.h"
-#include "script.h"
 #include "WiFiSecrets.h"
-
-#define CREDS_PATH "/wificreds.bin"
-
-
-#ifdef DEBUG
-#define _PP(...) USE_SERIAL.print(__VA_ARGS__)
-#define _PL(...) USE_SERIAL.println(__VA_ARGS__)
-#define _PF(...) USE_SERIAL.printf(__VA_ARGS__)
-#else
-#define _PP(...)
-#define _PL(...)
-#define _PF(...)
-#endif
 
 struct _creds {
     String ap_ssid;

@@ -1,4 +1,5 @@
 #include "ESP8266FSAutoConnect.h"
+#include "ESP8266FSAutoConnectInternal.h"
 
 ESP8266FSAutoConnect::ESP8266FSAutoConnect(uint16_t port)
 {
